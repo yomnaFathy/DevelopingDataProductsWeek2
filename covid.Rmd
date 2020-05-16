@@ -1,0 +1,63 @@
+---
+title: "Peer-graded Assignment:R Markdown and Leaflet"
+date: "5/15/2020"
+output: 
+html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Data 
+
+The dataset used for this project is [COVID-19 Dataset](https://www.kaggle.com/imdevskp/corona-virus-report) rovided by Johns Hopkins University Center for Systems Science and Engineering (JHU CSSE), [full details](https://github.com/CSSEGISandData/COVID-19). The dataset contains number of Confirmed, Death and Recovered cases every day across the globe from 1/22/2020 to 5/14/2020.
+
+```{r}
+df <- read.csv("covid_19.csv")
+head(df)
+```
+
+The data is grouped by Country, Latitude, and Longitude, then summerized by calculating least Confirmed, Deaths, and Recovered cases per country.
+
+```{r}
+library(dplyr)
+df2 <- df %>% 
+    group_by(Country.Region, Lat, Long) %>% 
+    summarize(cases = max(Confirmed, na.rm = TRUE), 
+              deaths = max(Deaths, na.rm = TRUE), 
+              recovered = max(Recovered, na.rm = TRUE))
+df2 <- df2 %>% rename(lat = Lat, lng = Long)
+    
+```
+
+
+## Coronavirus (COVID-19) map
+
+The map shows number of confirmed, recoverd, and death cases in each country when Circles are clicked.
+
+```{r}
+library(leaflet)
+df2 %>%
+    leaflet() %>%
+    addTiles() %>%
+    addCircles(weight = 1, radius = df2$cases * 2,
+               popup = paste("Country:",  df2$Country.Region, "<br>",
+                             "Confirmed:",  df2$cases, "<br>",
+                             "Recovered:", df2$recovered, "<br>",
+                             "Deaths:", df2$deaths, "<br>"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
